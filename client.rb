@@ -22,6 +22,7 @@ class Client
     end
 
     while @youko.active?
+      print "~> "
       message = gets.chomp
       @youko.tell message
       display "Me", message
