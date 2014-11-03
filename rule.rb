@@ -20,18 +20,16 @@ class Rule
     return parsed
   end
   
-  def match? text
+  def match text
     tokens = text.split
     return false unless tokens.size == @rule.size
     #Map literals first
-    map = {}
     @rule.each_with_index do |r, i|
       next if r[:type] != :literal
       return false if tokens.index(r[:text]) == nil
-      map[i] = tokens.index(r[:text])
     end
     #Then find forms
-    forms = {}
+    forms = []
     @rule.each_with_index do |r, i|
       next if r[:type] != :form
       lexemes = @lexicon.lexemes_by_form(r[:text])
@@ -45,7 +43,7 @@ class Rule
         !!matches
       end
       return false unless candidate
-      forms[i] = tokens.index(candidate.conjugate(r[:text]))
+      forms << tokens.index(candidate.conjugate(r[:text]))
     end
     return true
   end

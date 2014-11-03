@@ -37,7 +37,7 @@ class Youko
     puts "populated."
     print " ~ Building Grammar..."
     @grammar = Grammar.new(@lexicon)
-    @grammar.add_rule("there {verb} a {noun}", "(+<2>)=<1>")
+    @grammar.add_rule("there {verb} a {noun}", "(+{2})={0}")
     puts "built."
     puts "おはよう、ようこ!"
   end
