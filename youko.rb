@@ -1,9 +1,6 @@
 require "./Corr/corr.rb"
 require "./Corr/adaptor.rb"
 require "./concept.rb"
-require "./lexicon.rb"
-require "./grammar.rb"
-
 
 class Youko
 
@@ -24,22 +21,7 @@ class Youko
     @dog = Concept.new
     @to_be = Concept.new
     puts "conceptualized."
-    print " ~ Populating Lexicon..."
-    @lexicon = Lexicon.new
-    @lexicon.add_form(:noun, "[]")
-    @lexicon.add_form(:singular, "%")
-    @lexicon.add_form(:plural, "%#")
-    @lexicon.add_form(:verb, "[]")
-    @lexicon.add_form(:present, "%")
-    @lexicon.add_form(:past, "%:<")
-    @lexicon.add_lexeme(@dog, { noun: { singular: "dog", plural: "dogs" }})
-    @lexicon.add_lexeme(@to_be, { verb: { present: "is", past: "was" }})
-    puts "populated."
-    print " ~ Building Grammar..."
-    @grammar = Grammar.new(@lexicon)
-    @grammar.add_rule("there {verb} a {noun}", "(+{2})={0}")
-    puts "built."
-    puts "おはよう、ようこ!"
+    puts "Ohayou, Youko!"
   end
 
   def wake_up
@@ -68,13 +50,7 @@ class Youko
   end
 
   def codify message
-    codes = "";
-    matches = @grammar.match(message)
-    matches.each do |rule|
-      codes << rule.codify(message) + "; "
-    end
-    codes << "I cannot parse your text." if matches.empty?
-    return codes
+    return message
   end
 
 end
