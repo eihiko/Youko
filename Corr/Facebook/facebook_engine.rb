@@ -1,4 +1,5 @@
 require 'watir-webdriver'
+require 'watir-nokogiri'
 #require 'celerity'
 require 'pry'
 require 'cgi'
@@ -59,7 +60,7 @@ class FacebookEngine
   def current_index friend_id
     goto "https://www.facebook.com/messages/#{friend_id}"
     messages = browser.ul(id: "webMessengerRecentMessages")
-    return [0,0] unless messages.present?
+    return ["0",0] unless messages.present?
     #class is a keyword so I'm using the old shuttle notation to keep my syntax highlighting from breaking.
     return [messages.lis.last.id, messages.lis.last.divs(:class => "_3hi").count]
   end
@@ -130,9 +131,11 @@ class FacebookEngine
     logger.info("Redirecting to messages page")
     goto "https://www.facebook.com/messages/#{friend_id}"
     ms = []
-    messages = browser.ul(id: "webMessengerRecentMessages")
+    ms_all = []
     logger.info("Getting recent messages")
-    lis = browser.ul(id: "webMessengerRecentMessages").when_present.lis.to_a
+    doc = WatirNokogiri::Document.new(browser.html)
+    #lis = browser.ul(id: "webMessengerRecentMessages").when_present.lis.to_a
+    lis = doc.ul(id: "webMessengerRecentMessages").lis.to_a
     logger.info("Counting messages...")
     c = lis.count
     logger.info("Message count: #{c}")
@@ -151,23 +154,25 @@ class FacebookEngine
       end
       logger.info("Calculating li index")
       li_index = [li.id, li.divs(:class => "_3hi").count]
-
+      ms = ms_all
+      ms_all = []
       if li_index[0] > index[0]
         logger.info("Adding all divs")
         li.divs(:class => "_3hi").each do |m|
-          ms << m.text
+          ms_all << m.text
         end
       elsif li_index[0] == index[0]
         logger.info("Adding some divs")
-        li.divs(:class => "_3hi").to_a[index[1], li_index[1]].reverse.each do |m|
-          ms << m.text
+        li.divs(:class => "_3hi").to_a[index[1], li_index[1]].each do |m|
+          ms_all << m.text
         end
       else
         logger.info("Found all unread messages")
         break
       end
+      ms_all.concat(ms)
     end
-    return ms.reverse
+    return ms
   rescue UnknownObjectException
     if @rescue_tries < 5
       Logger.new("debug.txt").info("Catch UnknownObjectException")
