@@ -20,5 +20,9 @@ class SocketAdaptor
     @mutex.synchronize{ return @corrs }
   end
 
+  def status
+    "active"
+  end
+
 end
 

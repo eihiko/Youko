@@ -1,29 +1,45 @@
-class SocketCorr
+class FacebookCorr
   include Corr
   require "securerandom"
+  require "logger"
 
   attr_accessor :id
 
-  def initialize client
-    @client = client
-    @buffer = ""
+  def initialize friend_id, name
+    @friend_id = friend_id
+    @name = name
     @active = true
+    @inbox = []
+    @outbox = []
     self.id = SecureRandom.uuid()
   end
 
-  def listen
-    data = @client.recv_nonblock(512)
-    @active = false if data == ""
-    @buffer << data
-    messages = @buffer.split("[~!~]", -1)
-    @buffer = messages.pop || ""
+  def fill_inbox messages
+    @inbox.concat messages
+  end
+
+  def fill_outbox messages
+    @outbox.concat messages
+  end
+
+  def empty_inbox
+    messages = @inbox
+    @inbox = []
     return messages
-  rescue IO::WaitReadable => e
-    return []
+  end
+
+  def empty_outbox
+    messages = @outbox
+    @outbox = []
+    return messages
+  end
+
+  def listen
+    return empty_inbox
   end
   
   def tell *messages
-    messages.each { |message| @client.sendmsg "#{message}[~!~]" }
+    fill_outbox messages
   end
   
   def active?

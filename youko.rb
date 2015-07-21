@@ -1,6 +1,7 @@
 require "./Corr/corr.rb"
 require "./Corr/adaptor.rb"
 require "./concept.rb"
+require "logger"
 
 class Youko
 
@@ -46,7 +47,6 @@ class Youko
       replies << codify(message)
     end
     corr.tell *replies
-    sleep 1
   end
 
   def codify message
