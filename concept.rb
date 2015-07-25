@@ -21,7 +21,7 @@ class Concept
   def is? concept, condition=1
     return true if @is[concept] == condition
     @is.keys.each do |is|
-      return true if is.us? concept, condition
+      return true if is.is? concept, condition
     end
     return false
   end

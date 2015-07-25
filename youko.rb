@@ -1,13 +1,14 @@
-require "./Corr/corr.rb"
-require "./Corr/adaptor.rb"
-require "./concept.rb"
+require_relative "Corr/corr"
+require_relative "Corr/adaptor"
+require_relative "concept"
 require_relative "soul"
 require_relative "lexicon"
+require_relative "rose"
 require "logger"
 
 class Youko
 
-  attr_reader :grammar
+  attr_reader :grammar, :lexicon, :concepts
 
   def initialize
     puts "Youko is waking up!"
@@ -84,32 +85,28 @@ class Youko
         end
       end
       return dump
+    elsif command == "give cookie"
+      return "^O^"
     end
   end
 
 
   def interpret_rosecode rosecode
     iss = []
-    clauses = rosecode.split(";")
-    clauses.each do |clause|
-      iss << clause.split("=")
-    end
-    iss.each do |is|
-      first = @lexicon.find(is[0]).first
-      if first.nil?
-        first = Concept.new
-        @lexicon.add is[0], first
+    roses = rosecode.split(";")
+    roses.map! { |rose| Rose.new(self, rose) }
+    response = ""
+    roses.each do |rose|
+      if rose.question?
+        response << "Yes. " if rose.true? == 1
+        response << "No. " if rose.true? == 0
+        response << "I don't know. " if rose.true? == -1
+      else
+        rose.learn
+        response << "Okay. "
       end
-      second = @lexicon.find(is[1]).first
-      if second.nil?
-        second = Concept.new
-        @lexicon.add is[1], second
-      end
-      @concepts[first.id] = first
-      @concepts[second.id] =  second
-      first.is second
     end
-    return "Got it."
+    return response
   end
 
   def interpret_natural message
