@@ -5,9 +5,18 @@ class FacebookAdaptor
   include Adaptor
 
   def initialize
+    @corrs = []
+  end
+
+  def corrs
+    @corrs
+  end
+
+=begin
+  def initialize
+    @corrs = {}
     @facebook = FacebookEngine.new
     @mutex = Mutex.new
-    @corrs = {}
     facebook.friends.each do |friend_id, name|
       @corrs[friend_id] = FacebookCorr.new(friend_id, name)
     end
@@ -38,6 +47,8 @@ class FacebookAdaptor
   def status
     @listener.status
   end
+
+=end
 
 end
 
