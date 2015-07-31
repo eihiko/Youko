@@ -10,7 +10,9 @@ class Rose
     @rosecode = rosecode
     @question = (@rosecode[0] == "?")
     @rosecode = @rosecode[1, @rosecode.length] if @question
-    @concepts = {}
+    @left = nil
+    @right = nil
+    @op = nil
   end
 
   def id
@@ -30,8 +32,39 @@ class Rose
     return 0
   end
 
+  def parse
+    if @rosecode[0] == "("
+      left = ""
+      paren = 1
+      i = 1
+      loop do
+        break if i >= @rosecode.length
+        c = @rosecode[i]
+        i += 1
+        paren += 1 if c == "("
+        paren -= 1 if c == ")"
+        break if paren <= 0
+        left << c
+      end
+      @left = Rose.new(@youko, left)
+      @op = @rosecode[i]
+      @right = Rose.new(@youko, @rosecode[i+1, @rosecode.length])
+      return [@left.parse, @op, @right.parse]
+    else
+      i = @rosecode.index /[=]/
+      i ||= @rosecode.index /[+]/
+      return @rosecode if i.nil?
+      @left = Rose.new(@youko, @rosecode[0,i])
+      @op = @rosecode[i]
+      @right = Rose.new(@youko, @rosecode[i+1, @rosecode.length])
+      return [@left.parse, @op, @right.parse]
+    end
+  end
+
+
   def learn
     is = @rosecode.split("=")
+    has = is.each { |i| i.split(".") }
     first = @youko.lexicon.find(is[0]).first
     if first.nil?
       first = Concept.new
